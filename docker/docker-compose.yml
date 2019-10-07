@@ -1,0 +1,40 @@
+version: '3'
+services:
+
+  php:
+    build:
+      context: .
+      dockerfile: php-dockerfile
+    container_name: php
+    depends_on:
+      - mysql
+    restart: always
+    volumes:
+      - '../src:/code'
+      - "./config/php/certs:/etc/ssl/mysql"
+    environment:
+      DB_HOST: "mysql"
+      DB_DATABASE: "${MYSQL_DATABASE}"
+      DB_USERNAME: "${MYSQL_USER}"
+      DB_PASSWORD: "${MYSQL_PASSWORD}"
+      DB_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      DB_PORT: 3306
+
+
+  mysql:
+    build:
+      context: .
+      dockerfile: mysql-dockerfile
+    container_name: mysql
+    command: --default-authentication-plugin=mysql_native_password --ssl-ca=/etc/ssl/mysql/ca.pem --ssl-cert=/etc/ssl/mysql/client-cert.pem --ssl-key=/etc/ssl/mysql/client-key.pem
+    restart: always
+    expose:
+      - 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+    volumes:
+      - "./data/db:/var/lib/mysql"
+      - "./config/mysql/my.cnf:/etc/mysql/conf.d/ssl.cnf"

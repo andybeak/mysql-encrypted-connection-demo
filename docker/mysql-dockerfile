@@ -1,0 +1,9 @@
+FROM mysql/mysql-server:5.7
+
+RUN mkdir -p /etc/ssl/mysql
+COPY config/mysql/certs/ /etc/ssl/mysql
+RUN chown mysql:mysql /etc/ssl/mysql/*
+RUN chmod 600 /etc/ssl/mysql/*
+
+EXPOSE 3306
+CMD ["mysqld --ssl-ca=/etc/ssl/mysql/ca.pem --ssl-cert=/etc/ssl/mysql/client-cert.pem --ssl-key=/etc/ssl/mysql/client-key.pem"]
